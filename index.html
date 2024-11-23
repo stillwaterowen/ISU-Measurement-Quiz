@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infinite Geometry Quiz</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9fafc;
+      color: #333;
+    }
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 20px 10px;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    h1 {
+      text-align: center;
+      color: #ffffff
+    }
+    h2 {
+      text-align: center;
+      color: #4a90e2;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #357ab8;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: green;
+    }
+    .tracker {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #4a90e2;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Infinite Measurement Quiz</h1>
+  </header>
+  <div class="container">
+    <h2>Super Cool Measurement + Geometry Quiz!</h2>
+    <div>
+      <p id="quizQuestion"></p>
+      <input type="number" id="quizAnswer" placeholder="Your answer" step="0.01">
+      <button id="submitButton" onclick="submitQuiz()">Submit Answer</button>
+      <button onclick="generateQuestion()">Next Question</button>
+      <div class="result" id="quizResult"></div>
+      <div class="tracker">
+        <p id="correctCounter">Correct: 0</p>
+        <p id="incorrectCounter">Incorrect: 0</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    let currentAnswer;
+    let correctAnswers = 0;
+    let incorrectAnswers = 0;
+    let answerSubmitted = false; // Tracks if the user has submitted an answer
+
+    // Generate a new question
+    function generateQuestion() {
+      const questionTemplates = [
+        // Word problem 1: Garden plot with a rectangle
+        () => {
+          const perimeter = Math.floor(Math.random() * 80) + 40; // Random perimeter between 40 and 120
+          currentAnswer = (perimeter / 4) ** 2; // Square gives max area
+          return `A farmer wants to create a rectangular garden with a total fence length of ${perimeter} meters. What is the largest area he can enclose if all sides are fenced equally?`;
+        },
+        // Word problem 2: Pool fencing problem
+        () => {
+          const width = Math.floor(Math.random() * 30) + 10; // Random width between 10 and 40
+          const totalFence = 120;
+          currentAnswer = (width * (totalFence - 2 * width)).toFixed(2); // Area = width * (length = P/2 - width)
+          return `A rectangular pool is fenced on three sides using a total of ${totalFence} meters of fencing, with one side left open. If the width of the pool is ${width} meters, what is the maximum area the pool can have?`;
+        },
+        // Word problem 3: Circular park area
+        () => {
+          const circumference = Math.floor(Math.random() * 100) + 50; // Random circumference between 50 and 150
+          const radius = circumference / (2 * Math.PI);
+          currentAnswer = (Math.PI * radius ** 2).toFixed(2); // Area = πr²
+          return `A circular park has a circumference of ${circumference} meters. Calculate the area of the park. Use π ≈ 3.14.`;
+        },
+        // Word problem 4: Semicircular garden
+        () => {
+          const fenceLength = Math.floor(Math.random() * 100) + 50; // Random length between 50 and 150
+          const radius = fenceLength / (Math.PI + 2);
+          currentAnswer = ((Math.PI * radius ** 2) / 2).toFixed(2); // Area = 1/2 πr²
+          return `A semicircular garden is fenced with a total length of ${fenceLength} meters (including the straight edge). Calculate the enclosed area. Use π ≈ 3.14.`;
+        },
+        // Word problem 5: Triangle and height
+        () => {
+          const base = Math.floor(Math.random() * 20) + 10; // Random base between 10 and 30
+          const height = Math.floor(Math.random() * 15) + 5; // Random height between 5 and 20
+          currentAnswer = (0.5 * base * height).toFixed(2); // Area = 1/2 * base * height
+          return `A triangular field has a base of ${base} meters and a height of ${height} meters. Calculate the area of the field.`;
+        }
+      ];
+
+      // Pick a random template
+      const randomIndex = Math.floor(Math.random() * questionTemplates.length);
+      const questionText = questionTemplates[randomIndex]();
+
+      // Update the UI
+      document.getElementById("quizQuestion").textContent = questionText;
+      document.getElementById("quizResult").textContent = "";
+      document.getElementById("quizAnswer").value = ""; // Clear previous input
+
+      // Reset submission state
+      answerSubmitted = false;
+      document.getElementById("submitButton").disabled = false;
+    }
+
+    // Validate the user's answer
+    function submitQuiz() {
+      if (answerSubmitted) return; // Prevent multiple submissions
+
+      const userAnswer = parseFloat(document.getElementById("quizAnswer").value);
+      if (isNaN(userAnswer)) {
+        document.getElementById("quizResult").textContent = "Please enter a valid number.";
+        return;
+      }
+      if (Math.abs(userAnswer - currentAnswer) < 0.01) {
+        correctAnswers++;
+        document.getElementById("quizResult").textContent = "Correct!";
+      } else {
+        incorrectAnswers++;
+        document.getElementById("quizResult").textContent = `Incorrect. The correct answer was ${currentAnswer}.`;
+      }
+
+      // Update counters
+      document.getElementById("correctCounter").textContent = `Correct: ${correctAnswers}`;
+      document.getElementById("incorrectCounter").textContent = `Incorrect: ${incorrectAnswers}`;
+
+      // Mark the question as answered
+      answerSubmitted = true;
+      document.getElementById("submitButton").disabled = true;
+    }
+
+    // Initialize the first question
+    generateQuestion();
+  </script>
+</body>
+</html>
